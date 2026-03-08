@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editează email' if config else 'Configurare nouă' }} - Scrapper Ultimate{% endblock %}
+{% block content %}
+<div class="mb-8">
+  <a href="{{ url_for('emails.list_configs') }}" class="text-blue-600 hover:underline text-sm">← Înapoi</a>
+  <h1 class="text-2xl font-bold text-slate-800 mt-2">{{ 'Editează configurare email' if config else 'Configurare nouă' }}</h1>
+</div>
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 max-w-2xl">
+  <form method="post" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-slate-700 mb-1">Nume</label>
+      <input type="text" name="name" required value="{{ config.name if config else '' }}" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500">
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Host SMTP</label>
+        <input type="text" name="smtp_host" required value="{{ config.smtp_host if config else '' }}" class="w-full px-4 py-2 rounded-lg border border-slate-300">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Port</label>
+        <input type="number" name="smtp_port" value="{{ config.smtp_port if config else 587 }}" class="w-full px-4 py-2 rounded-lg border border-slate-300">
+      </div>
+    </div>
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="checkbox" name="use_tls" value="1" {{ 'checked' if not config or config.use_tls else '' }} class="rounded text-blue-600">
+      <span class="text-sm font-medium text-slate-700">Folosește TLS</span>
+    </label>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Utilizator (opțional)</label>
+        <input type="text" name="username" value="{{ config.username if config else '' }}" class="w-full px-4 py-2 rounded-lg border border-slate-300">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Parolă</label>
+        <input type="password" name="password" value="" placeholder="{{ 'Lăsați gol pentru a păstra' if config else '' }}" class="w-full px-4 py-2 rounded-lg border border-slate-300">
+      </div>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-700 mb-1">Adresă expeditor</label>
+      <input type="email" name="from_email" required value="{{ config.from_email if config else '' }}" class="w-full px-4 py-2 rounded-lg border border-slate-300">
+    </div>
+    <div class="flex gap-3 pt-4">
+      <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">Salvează</button>
+      <a href="{{ url_for('emails.list_configs') }}" class="px-6 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition">Anulare</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

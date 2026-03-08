@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Joburi - Scrapper Ultimate{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-8">
+  <h1 class="text-2xl font-bold text-slate-800">Joburi</h1>
+  <a href="{{ url_for('jobs.new_job') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">Job nou</a>
+</div>
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+  <table class="w-full">
+    <thead class="bg-slate-50 border-b border-slate-200">
+      <tr>
+        <th class="text-left py-3 px-4 font-medium text-slate-600">Nume</th>
+        <th class="text-left py-3 px-4 font-medium text-slate-600">URL</th>
+        <th class="text-left py-3 px-4 font-medium text-slate-600">Program</th>
+        <th class="text-left py-3 px-4 font-medium text-slate-600">Status</th>
+        <th class="text-right py-3 px-4 font-medium text-slate-600">Acțiuni</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for job in jobs %}
+      <tr class="border-b border-slate-100 hover:bg-slate-50/50">
+        <td class="py-3 px-4 font-medium">{{ job.name }}</td>
+        <td class="py-3 px-4 text-slate-600 text-sm max-w-xs truncate">{{ job.url }}</td>
+        <td class="py-3 px-4 text-slate-600 text-sm">{{ job.schedule_label or '—' }}</td>
+        <td class="py-3 px-4">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if job.active %}bg-emerald-100 text-emerald-800{% else %}bg-slate-100 text-slate-600{% endif %}">
+            {{ 'Activ' if job.active else 'Inactiv' }}
+          </span>
+        </td>
+        <td class="py-3 px-4 text-right">
+          <form action="{{ url_for('jobs.toggle_job', job_id=job.id) }}" method="post" class="inline">
+            <button type="submit" class="text-sm text-blue-600 hover:underline mr-2">Comutare</button>
+          </form>
+          <form action="{{ url_for('jobs.run_now', job_id=job.id) }}" method="post" class="inline">
+            <button type="submit" class="text-sm text-blue-600 hover:underline mr-2">Rulează acum</button>
+          </form>
+          <a href="{{ url_for('jobs.edit_job', job_id=job.id) }}" class="text-sm text-blue-600 hover:underline mr-2">Editează</a>
+          <form action="{{ url_for('jobs.delete_job', job_id=job.id) }}" method="post" class="inline" onsubmit="return confirm('Ștergeți acest job?');">
+            <button type="submit" class="text-sm text-red-600 hover:underline">Șterge</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="py-8 px-4 text-center text-slate-500">Niciun job. <a href="{{ url_for('jobs.new_job') }}" class="text-blue-600 hover:underline">Creați un job</a>.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

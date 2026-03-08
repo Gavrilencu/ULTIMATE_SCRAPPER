@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editează conexiune' if connection else 'Conexiune nouă' }} - Scrapper Ultimate{% endblock %}
+{% block content %}
+<div class="mb-8">
+  <a href="{{ url_for('databases.list_connections') }}" class="text-blue-600 hover:underline text-sm">← Înapoi</a>
+  <h1 class="text-2xl font-bold text-slate-800 mt-2">{{ 'Editează conexiune' if connection else 'Conexiune nouă' }}</h1>
+</div>
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 max-w-2xl">
+  <form method="post" class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium text-slate-700 mb-1">Nume conexiune</label>
+      <input type="text" name="name" required value="{{ connection.name if connection else '' }}" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500">
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-700 mb-1">Tip bază de date</label>
+      <select name="db_type" id="dbType" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500">
+        <option value="sqlite" {{ 'selected' if connection and connection.db_type == 'sqlite' else '' }}>SQLite</option>
+        <option value="postgres" {{ 'selected' if connection and connection.db_type == 'postgres' else '' }}>PostgreSQL</option>
+        <option value="mysql" {{ 'selected' if connection and connection.db_type == 'mysql' else '' }}>MySQL</option>
+        <option value="oracle" {{ 'selected' if connection and connection.db_type == 'oracle' else '' }}>Oracle</option>
+      </select>
+    </div>
+    <div id="sqliteFields" class="space-y-4">
+      <div>
+        <label id="extraLabel" class="block text-sm font-medium text-slate-700 mb-1">Cale fișier (sau :memory:)</label>
+        <input type="text" name="extra" id="extraInput" value="{{ connection.extra if connection else '' }}" placeholder="/path/to/db.sqlite" class="w-full px-4 py-2 rounded-lg border border-slate-300">
+      </div>
+    </div>
+    <div id="serverFields" class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Host</label>
+          <input type="text" name="host" value="{{ connection.host if connection else 'localhost' }}" class="w-full px-4 py-2 rounded-lg border border-slate-300">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Port</label>
+          <input type="number" name="port" value="{{ connection.port if connection else 5432 }}" class="w-full px-4 py-2 rounded-lg border border-slate-300">
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">Bază de date / Service name</label>
+        <input type="text" name="database" value="{{ connection.database if connection else '' }}" class="w-full px-4 py-2 rounded-lg border border-slate-300">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Utilizator</label>
+          <input type="text" name="username" value="{{ connection.username if connection else '' }}" class="w-full px-4 py-2 rounded-lg border border-slate-300">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Parolă</label>
+          <input type="password" name="password" value="" placeholder="{{ 'Lăsați gol pentru a păstra parola' if connection else '' }}" class="w-full px-4 py-2 rounded-lg border border-slate-300">
+        </div>
+      </div>
+      <div id="oracleExtra">
+        <label class="block text-sm font-medium text-slate-700 mb-1">DSN Oracle (opțional)</label>
+        <input type="text" name="oracle_dsn" id="oracleDsn" value="{{ connection.extra if connection and connection.db_type == 'oracle' else '' }}" placeholder="hostname:port/service_name" class="w-full px-4 py-2 rounded-lg border border-slate-300">
+      </div>
+    </div>
+    <div class="flex gap-3 pt-4">
+      <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition">Salvează</button>
+      <a href="{{ url_for('databases.list_connections') }}" class="px-6 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition">Anulare</a>
+    </div>
+  </form>
+</div>
+<script>
+function toggleFields() {
+  var t = document.getElementById('dbType').value;
+  var isSqlite = t === 'sqlite';
+  document.getElementById('sqliteFields').classList.toggle('hidden', !isSqlite);
+  document.getElementById('serverFields').classList.toggle('hidden', isSqlite);
+  document.getElementById('oracleExtra').classList.toggle('hidden', t !== 'oracle');
+  var port = document.querySelector('input[name="port"]');
+  if (t === 'postgres') port.value = 5432;
+  if (t === 'mysql') port.value = 3306;
+  if (t === 'oracle') port.value = 1521;
+  var extraLabel = document.getElementById('extraLabel');
+  var extraInput = document.getElementById('extraInput');
+  if (isSqlite) { extraLabel.textContent = 'Cale fișier (sau :memory:)'; extraInput.placeholder = '/path/to/db.sqlite'; extraInput.name = 'extra'; document.getElementById('oracleDsn').name = ''; }
+  else if (t === 'oracle') { document.getElementById('oracleDsn').name = 'extra'; extraInput.name = ''; }
+  else { extraInput.name = ''; document.getElementById('oracleDsn').name = ''; }
+}
+document.getElementById('dbType').addEventListener('change', toggleFields);
+toggleFields();
+</script>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Loguri - Scrapper Ultimate{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-8">
+  <h1 class="text-2xl font-bold text-slate-800">Loguri</h1>
+  <form method="get" class="flex gap-2 items-center">
+    <select name="level" class="px-3 py-2 rounded-lg border border-slate-300 text-sm">
+      <option value="">Toate nivelurile</option>
+      <option value="info" {{ 'selected' if level == 'info' else '' }}>Info</option>
+      <option value="success" {{ 'selected' if level == 'success' else '' }}>Succes</option>
+      <option value="error" {{ 'selected' if level == 'error' else '' }}>Eroare</option>
+      <option value="email" {{ 'selected' if level == 'email' else '' }}>Email</option>
+    </select>
+    <button type="submit" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 text-sm">Filtrează</button>
+  </form>
+</div>
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-slate-50 border-b border-slate-200">
+        <tr>
+          <th class="text-left py-3 px-4 font-medium text-slate-600">Data / oră</th>
+          <th class="text-left py-3 px-4 font-medium text-slate-600">Job</th>
+          <th class="text-left py-3 px-4 font-medium text-slate-600">Nivel</th>
+          <th class="text-left py-3 px-4 font-medium text-slate-600">Mesaj</th>
+          <th class="text-left py-3 px-4 font-medium text-slate-600">Detalii</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr class="border-b border-slate-100 hover:bg-slate-50/50">
+          <td class="py-3 px-4 text-slate-600 text-sm whitespace-nowrap">{{ log.created_at.strftime('%d.%m.%Y %H:%M:%S') if log.created_at else '—' }}</td>
+          <td class="py-3 px-4 text-slate-700">{{ log.job_name or '—' }}</td>
+          <td class="py-3 px-4">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+              {% if log.level == 'success' %}bg-emerald-100 text-emerald-800
+              {% elif log.level == 'error' %}bg-red-100 text-red-800
+              {% elif log.level == 'email' %}bg-blue-100 text-blue-800
+              {% else %}bg-slate-100 text-slate-700{% endif %}">
+              {{ log.level }}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-slate-800">{{ log.message }}</td>
+          <td class="py-3 px-4 text-slate-600 text-sm max-w-md truncate" title="{{ log.details or '' }}">{{ log.details[:100] if log.details else '—' }}{% if log.details and log.details|length > 100 %}...{% endif %}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" class="py-8 px-4 text-center text-slate-500">Niciun log.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if pagination and pagination.pages > 1 %}
+  <div class="px-4 py-3 border-t border-slate-200 flex justify-between items-center">
+    <span class="text-sm text-slate-600">Pagina {{ pagination.page }} din {{ pagination.pages }}</span>
+    <div class="flex gap-2">
+      {% if pagination.has_prev %}
+      <a href="{{ url_for('logs.list_logs', page=pagination.prev_num, level=level, job_id=job_id) }}" class="px-3 py-1 rounded border text-sm text-slate-700 hover:bg-slate-50">Înapoi</a>
+      {% endif %}
+      {% if pagination.has_next %}
+      <a href="{{ url_for('logs.list_logs', page=pagination.next_num, level=level, job_id=job_id) }}" class="px-3 py-1 rounded border text-sm text-slate-700 hover:bg-slate-50">Înainte</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
