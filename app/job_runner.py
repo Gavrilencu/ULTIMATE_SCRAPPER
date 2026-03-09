@@ -18,8 +18,11 @@ def run_job(job_id: int) -> None:
 
     try:
         library = getattr(job, "scraper_library", None) or "parsel"
+        proxy = None
+        if getattr(job, "proxy_enabled", False) and getattr(job, "proxy_url", None):
+            proxy = (job.proxy_url or "").strip() or None
         log_info("Pornire job", job.url)
-        html, err = fetch_page(job.url, library=library)
+        html, err = fetch_page(job.url, library=library, proxy=proxy)
         if err:
             log_error("Eroare la descărcarea paginii", err)
             _try_email(job, False, f"Eroare: {err}")

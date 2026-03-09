@@ -50,6 +50,12 @@ def create_app(config_class="config"):
                 if "scraper_library" not in cols:
                     db.session.execute(text("ALTER TABLE jobs ADD COLUMN scraper_library VARCHAR(30) DEFAULT 'parsel'"))
                     db.session.commit()
+                if "proxy_enabled" not in cols:
+                    db.session.execute(text("ALTER TABLE jobs ADD COLUMN proxy_enabled BOOLEAN DEFAULT 0"))
+                    db.session.commit()
+                if "proxy_url" not in cols:
+                    db.session.execute(text("ALTER TABLE jobs ADD COLUMN proxy_url TEXT"))
+                    db.session.commit()
             except Exception:
                 db.session.rollback()
         from app.scheduler import init_scheduler

@@ -55,6 +55,8 @@ class Job(db.Model):
     email_on_success = db.Column(db.Boolean, default=False)
     email_on_error = db.Column(db.Boolean, default=True)
     email_config_id = db.Column(db.Integer, db.ForeignKey("email_configs.id"), nullable=True)
+    proxy_enabled = db.Column(db.Boolean, default=False)
+    proxy_url = db.Column(db.Text)  # ex: http://host:port sau http://user:pass@host:port
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

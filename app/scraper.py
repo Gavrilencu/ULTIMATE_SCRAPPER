@@ -50,16 +50,19 @@ def format_value(value: str, format_type: str) -> str:
     return value
 
 
-def _fetch_requests(url: str, timeout: int = 30) -> tuple[str, str | None]:
+def _fetch_requests(url: str, timeout: int = 30, proxy: str | None = None) -> tuple[str, str | None]:
     try:
-        r = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=timeout)
+        kwargs = {"headers": {"User-Agent": USER_AGENT}, "timeout": timeout}
+        if proxy and (proxy := proxy.strip()):
+            kwargs["proxies"] = {"http": proxy, "https": proxy}
+        r = requests.get(url, **kwargs)
         r.raise_for_status()
         return r.text, None
     except requests.RequestException as e:
         return "", str(e)
 
 
-def _fetch_selenium(url: str, timeout: int = 30) -> tuple[str, str | None]:
+def _fetch_selenium(url: str, timeout: int = 30, proxy: str | None = None) -> tuple[str, str | None]:
     try:
         from selenium import webdriver
         from selenium.webdriver.chrome.options import Options
@@ -73,6 +76,11 @@ def _fetch_selenium(url: str, timeout: int = 30) -> tuple[str, str | None]:
     opts.add_argument("--disable-gpu")
     opts.add_argument("--window-size=1920,1080")
     opts.add_argument(f"user-agent={USER_AGENT}")
+    if proxy and (proxy := proxy.strip()):
+        host, port = _proxy_host(proxy), _proxy_port(proxy)
+        if host:
+            server = f"{host}:{port or 8080}"
+            opts.add_argument(f"--proxy-server={server}")
     driver = None
     try:
         driver = webdriver.Chrome(options=opts)
@@ -86,6 +94,12 @@ def _fetch_selenium(url: str, timeout: int = 30) -> tuple[str, str | None]:
             from selenium.webdriver.firefox.options import Options as FirefoxOptions
             opts_ff = FirefoxOptions()
             opts_ff.add_argument("--headless")
+            if proxy and proxy.strip():
+                opts_ff.set_preference("network.proxy.type", 1)
+                opts_ff.set_preference("network.proxy.http", _proxy_host(proxy))
+                opts_ff.set_preference("network.proxy.http_port", _proxy_port(proxy) or 80)
+                opts_ff.set_preference("network.proxy.ssl", _proxy_host(proxy))
+                opts_ff.set_preference("network.proxy.ssl_port", _proxy_port(proxy) or 443)
             driver_ff = webdriver.Firefox(options=opts_ff)
             driver_ff.set_page_load_timeout(timeout)
             driver_ff.get(url)
@@ -103,10 +117,30 @@ def _fetch_selenium(url: str, timeout: int = 30) -> tuple[str, str | None]:
                 pass
 
 
-def fetch_page(url: str, library: str = "parsel", timeout: int = 30) -> tuple[str, str | None]:
+def _proxy_host(proxy_url: str) -> str:
+    """Extrage host din URL proxy (http://host:port sau http://user:pass@host:port)."""
+    from urllib.parse import urlparse
+    try:
+        parsed = urlparse(proxy_url if "://" in proxy_url else "http://" + proxy_url)
+        return parsed.hostname or ""
+    except Exception:
+        return ""
+
+
+def _proxy_port(proxy_url: str) -> int | None:
+    """Extrage port din URL proxy."""
+    from urllib.parse import urlparse
+    try:
+        parsed = urlparse(proxy_url if "://" in proxy_url else "http://" + proxy_url)
+        return parsed.port
+    except Exception:
+        return None
+
+
+def fetch_page(url: str, library: str = "parsel", timeout: int = 30, proxy: str | None = None) -> tuple[str, str | None]:
     if library == "selenium":
-        return _fetch_selenium(url, timeout)
-    return _fetch_requests(url, timeout)
+        return _fetch_selenium(url, timeout, proxy=proxy)
+    return _fetch_requests(url, timeout, proxy=proxy)
 
 
 def _extract_parsel(html: str, variables: list) -> dict:

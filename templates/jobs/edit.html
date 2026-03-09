@@ -36,6 +36,22 @@
   </div>
 
   <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+    <h2 class="text-lg font-semibold text-slate-800 mb-4">Proxy (opțional)</h2>
+    <p class="text-sm text-slate-600 mb-3">Dacă activați proxy-ul, acest job va folosi proxy-ul la conectarea la site.</p>
+    <div class="space-y-3">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" name="proxy_enabled" value="1" {{ 'checked' if job and job.proxy_enabled else '' }} class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+        <span class="text-sm font-medium text-slate-700">Folosește proxy</span>
+      </label>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">URL proxy</label>
+        <input type="text" name="proxy_url" value="{{ job.proxy_url if job and job.proxy_url else '' }}" placeholder="http://host:port sau http://user:pass@host:port" class="w-full max-w-xl px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 font-mono text-sm">
+        <p class="text-xs text-slate-500 mt-1">Ex: <code class="bg-slate-100 px-1 rounded">http://127.0.0.1:8080</code> sau <code class="bg-slate-100 px-1 rounded">http://user:parola@proxy.example.com:3128</code></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
     <h2 class="text-lg font-semibold text-slate-800 mb-4">Programare</h2>
     <p class="text-sm text-slate-600 mb-3">Selectați zilele și ora la care jobul rulează automat.</p>
     <div class="flex flex-wrap gap-4 items-center">

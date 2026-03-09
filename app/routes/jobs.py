@@ -74,6 +74,8 @@ def _save_job(job):
     email_on_success = request.form.get("email_on_success") == "1"
     email_on_error = request.form.get("email_on_error") == "1"
     scraper_library = (request.form.get("scraper_library") or "parsel").strip()
+    proxy_enabled = request.form.get("proxy_enabled") == "1"
+    proxy_url = (request.form.get("proxy_url") or "").strip() or None
 
     cron, label = cron_from_form()
 
@@ -85,6 +87,7 @@ def _save_job(job):
             database_connection_id=int(db_conn_id) if db_conn_id else None,
             email_config_id=int(email_config_id) if email_config_id else None,
             email_on_success=email_on_success, email_on_error=email_on_error,
+            proxy_enabled=proxy_enabled, proxy_url=proxy_url,
         )
         db.session.add(job)
         db.session.flush()
@@ -102,6 +105,8 @@ def _save_job(job):
         job.email_config_id = int(email_config_id) if email_config_id else None
         job.email_on_success = email_on_success
         job.email_on_error = email_on_error
+        job.proxy_enabled = proxy_enabled
+        job.proxy_url = proxy_url
 
     # Variables JSON: [{"name","extract_type","selector","constant_value","format_type","order_index"}]
     vars_json = request.form.get("variables_json")
