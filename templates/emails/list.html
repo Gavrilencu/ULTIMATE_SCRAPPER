@@ -37,14 +37,16 @@
 </div>
 <div id="testResult" class="hidden mt-4 p-4 rounded-lg"></div>
 <script>
-document.querySelectorAll('.test-email').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    var id = this.dataset.id;
-    var el = document.getElementById('testResult');
-    el.classList.remove('hidden', 'bg-red-50', 'text-red-800', 'bg-emerald-50', 'text-emerald-800');
-    el.textContent = 'Se trimite email de test...';
-    el.classList.add('bg-slate-100', 'text-slate-700');
-    fetch('/emails/' + id + '/test', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) })
+(function() {
+  var baseUrl = "{{ request.script_root|default('', true) }}";
+  document.querySelectorAll('.test-email').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = this.dataset.id;
+      var el = document.getElementById('testResult');
+      el.classList.remove('hidden', 'bg-red-50', 'text-red-800', 'bg-emerald-50', 'text-emerald-800');
+      el.textContent = 'Se trimite email de test...';
+      el.classList.add('bg-slate-100', 'text-slate-700');
+      fetch(baseUrl + '/emails/' + id + '/test', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) })
       .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
       .then(function(o) {
         el.classList.remove('bg-slate-100');
@@ -52,7 +54,8 @@ document.querySelectorAll('.test-email').forEach(function(btn) {
         else { el.classList.add('bg-red-50', 'text-red-800'); el.textContent = o.data.message || 'Eroare'; }
       })
       .catch(function() { el.classList.add('bg-red-50', 'text-red-800'); el.textContent = 'Eroare de rețea'; });
+    });
   });
-});
+})();
 </script>
 {% endblock %}
