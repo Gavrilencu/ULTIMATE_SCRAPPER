@@ -10,12 +10,14 @@ tools_bp = Blueprint("tools", __name__)
 @login_required
 def test_extract_page():
     if request.method == "POST":
-        url = (request.form.get("url") or request.json.get("url") or "").strip()
-        library = request.form.get("library") or request.json.get("library") or "parsel"
-        selector_type = request.form.get("selector_type") or request.json.get("selector_type") or "xpath"
-        selector = (request.form.get("selector") or request.json.get("selector") or "").strip()
-        proxy_enabled = request.form.get("proxy_enabled") == "1" or request.json.get("proxy_enabled") is True
-        proxy_url = (request.form.get("proxy_url") or request.json.get("proxy_url") or "").strip()
+        # Acceptă atât form (submit normal) cât și JSON (AJAX); nu accesa request.json direct (dă 415 la form)
+        j = request.get_json(silent=True) or {}
+        url = (request.form.get("url") or j.get("url") or "").strip()
+        library = request.form.get("library") or j.get("library") or "parsel"
+        selector_type = request.form.get("selector_type") or j.get("selector_type") or "xpath"
+        selector = (request.form.get("selector") or j.get("selector") or "").strip()
+        proxy_enabled = request.form.get("proxy_enabled") == "1" or j.get("proxy_enabled") is True
+        proxy_url = (request.form.get("proxy_url") or j.get("proxy_url") or "").strip()
         proxy = proxy_url if (proxy_enabled and proxy_url) else None
         if not url:
             if request.is_json:

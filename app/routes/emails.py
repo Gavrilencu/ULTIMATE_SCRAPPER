@@ -63,7 +63,8 @@ def edit_config(config_id):
 @login_required
 def test_config(config_id):
     config = EmailConfig.query.get_or_404(config_id)
-    to_email = (request.form.get("to_email") or request.json.get("to_email") or config.from_email).strip()
+    j = request.get_json(silent=True) or {}
+    to_email = (request.form.get("to_email") or j.get("to_email") or config.from_email).strip()
     ok, err = send_email(config, [to_email], "Test Scrapper Ultimate", "Acesta este un email de test.")
     if ok:
         return jsonify({"ok": True, "message": "Email de test trimis."})
