@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, current_app
 from flask_login import login_required
 from app.models import Log
+from app.time_utils import format_local_datetime, get_app_timezone
 
 logs_bp = Blueprint("logs", __name__)
 
@@ -35,6 +36,7 @@ def api_logs():
     if level:
         q = q.filter(Log.level == level)
     pagination = q.paginate(page=page, per_page=per_page)
+    tz = get_app_timezone(current_app)
     items = [
         {
             "id": l.id,
@@ -43,7 +45,7 @@ def api_logs():
             "level": l.level,
             "message": l.message,
             "details": l.details,
-            "created_at": l.created_at.isoformat() if l.created_at else None,
+            "created_at": format_local_datetime(l.created_at, fmt="%Y-%m-%d %H:%M:%S", tz=tz) if l.created_at else None,
         }
         for l in pagination.items
     ]

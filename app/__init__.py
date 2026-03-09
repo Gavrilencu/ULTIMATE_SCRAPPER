@@ -20,6 +20,15 @@ def create_app(config_class="config"):
     def load_user(user_id):
         return db.session.get(User, int(user_id))
 
+    from app.time_utils import format_local_datetime, get_app_timezone
+    @app.template_filter("local_time")
+    def local_time_filter(dt, fmt="%d.%m.%Y %H:%M:%S"):
+        if dt is None:
+            return "—"
+        from flask import current_app
+        tz = get_app_timezone(current_app)
+        return format_local_datetime(dt, fmt=fmt, tz=tz)
+
     from app.routes import main_bp, auth_bp, jobs_bp, databases_bp, emails_bp, logs_bp, tools_bp
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(main_bp)

@@ -29,7 +29,7 @@
       <tbody>
         {% for log in logs %}
         <tr class="border-b border-slate-100 hover:bg-slate-50/50">
-          <td class="py-3 px-4 text-slate-600 text-sm whitespace-nowrap">{{ log.created_at.strftime('%d.%m.%Y %H:%M:%S') if log.created_at else '—' }}</td>
+          <td class="py-3 px-4 text-slate-600 text-sm whitespace-nowrap">{{ log.created_at | local_time }}</td>
           <td class="py-3 px-4 text-slate-700">{{ log.job_name or '—' }}</td>
           <td class="py-3 px-4">
             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
