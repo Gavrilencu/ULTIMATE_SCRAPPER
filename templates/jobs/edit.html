@@ -137,8 +137,8 @@ function renderVariables() {
         <option value="css" ${v.extract_type==='css'?'selected':''}>CSS</option>
         <option value="constant" ${v.extract_type==='constant'?'selected':''}>Constant</option>
       </select>
-      <input type="text" name="var_selector_${i}" placeholder="XPath sau CSS" value="${escapeHtml(v.selector || '')}" class="flex-1 min-w-[120px] px-2 py-1.5 rounded border text-sm var-selector">
-      <input type="text" name="var_constant_${i}" placeholder="Valoare constantă" value="${escapeHtml(v.constant_value || '')}" class="flex-1 min-w-[120px] px-2 py-1.5 rounded border text-sm var-constant">
+      <textarea name="var_selector_${i}" placeholder="XPath sau CSS" rows="2" class="flex-1 min-w-[200px] px-2 py-1.5 rounded border text-sm var-selector font-mono resize-y">${escapeHtml(v.selector || '')}</textarea>
+      <textarea name="var_constant_${i}" placeholder="Valoare constantă" rows="2" class="flex-1 min-w-[120px] px-2 py-1.5 rounded border text-sm var-constant resize-y">${escapeHtml(v.constant_value || '')}</textarea>
       <select class="px-2 py-1.5 rounded border text-sm var-format">
         ${FORMAT_TYPES.map(f => `<option value="${f.value}" ${v.format_type===f.value?'selected':''}>${f.label}</option>`).join('')}
       </select>
