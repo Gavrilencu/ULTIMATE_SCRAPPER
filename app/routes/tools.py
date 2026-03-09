@@ -10,8 +10,10 @@ tools_bp = Blueprint("tools", __name__)
 @login_required
 def test_extract_page():
     if request.method == "POST":
-        # Acceptă atât form (submit normal) cât și JSON (AJAX); nu accesa request.json direct (dă 415 la form)
-        j = request.get_json(silent=True) or {}
+        # Citim doar din form (submit normal). Pentru JSON/AJAX folosim get_json doar dacă Content-Type e application/json
+        j = {}
+        if request.content_type and "application/json" in request.content_type:
+            j = request.get_json(silent=True) or {}
         url = (request.form.get("url") or j.get("url") or "").strip()
         library = request.form.get("library") or j.get("library") or "parsel"
         selector_type = request.form.get("selector_type") or j.get("selector_type") or "xpath"
