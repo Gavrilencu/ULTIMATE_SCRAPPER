@@ -7,9 +7,41 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 
 
+class PrefixMiddleware:
+    """
+    Montează toată aplicația sub un prefix (ex: /scrapper).
+    PATH_INFO este tăiat cu prefixul, iar SCRIPT_NAME este setat pentru url_for.
+    """
+
+    def __init__(self, app, prefix: str):
+        self.app = app
+        self.prefix = prefix.rstrip("/") or ""
+
+    def __call__(self, environ, start_response):
+        if not self.prefix:
+            return self.app(environ, start_response)
+        path = environ.get("PATH_INFO", "") or ""
+        if path.startswith(self.prefix):
+            environ["SCRIPT_NAME"] = self.prefix
+            environ["PATH_INFO"] = path[len(self.prefix):] or "/"
+            return self.app(environ, start_response)
+        if path == "/":
+            # Redirect de la rădăcină la prefix (ex: / -> /scrapper/)
+            location = self.prefix + "/"
+            start_response("302 Found", [("Location", location), ("Content-Type", "text/plain")])
+            return [b"Redirecting..."]
+        # Orice alt path fără prefix -> 404
+        start_response("404 Not Found", [("Content-Type", "text/plain")])
+        return [b"Not Found"]
+
+
 def create_app(config_class="config"):
     app = Flask(__name__, static_folder="../static", template_folder="../templates")
     app.config.from_object(config_class)
+    # Montează toată aplicația sub BASE_PATH (implicit /scrapper)
+    base_path = (app.config.get("BASE_PATH") or "").rstrip("/")
+    if base_path and base_path != "/":
+        app.wsgi_app = PrefixMiddleware(app.wsgi_app, base_path)
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = "auth.login"
