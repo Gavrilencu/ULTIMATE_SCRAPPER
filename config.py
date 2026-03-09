@@ -24,7 +24,8 @@ elif APP_DB_BACKEND == "mysql":
     user = quote_plus(APP_DB_USER)
     pwd = quote_plus(APP_DB_PASSWORD)
     port = APP_DB_PORT or "3306"
-    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{user}:{pwd}@{APP_DB_HOST}:{port}/{APP_DB_NAME}"
+    # charset=utf8mb4 pentru caractere românești (ă, â, î, ș, ț) și emoji
+    SQLALCHEMY_DATABASE_URI = f"mysql+pymysql://{user}:{pwd}@{APP_DB_HOST}:{port}/{APP_DB_NAME}?charset=utf8mb4"
 else:
     # SQLite local (implicit)
     _db_path = (BASE_DIR / os.environ.get("APP_DB_SQLITE_FILE", "app.db")).as_posix()
