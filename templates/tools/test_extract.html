@@ -19,6 +19,16 @@
         {% endfor %}
       </select>
     </div>
+    <div class="space-y-2">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" name="proxy_enabled" value="1" {{ 'checked' if proxy_enabled|default(false) else '' }} class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+        <span class="text-sm font-medium text-slate-700">Folosește proxy</span>
+      </label>
+      <div>
+        <label class="block text-sm font-medium text-slate-700 mb-1">URL proxy (opțional)</label>
+        <input type="text" name="proxy_url" value="{{ proxy_url|default('', true) }}" placeholder="http://host:port sau http://user:pass@host:port" class="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 font-mono text-sm">
+      </div>
+    </div>
     <div class="flex flex-wrap gap-4 items-end">
       <div class="flex-1 min-w-[200px]">
         <label class="block text-sm font-medium text-slate-700 mb-1">Tip selector</label>

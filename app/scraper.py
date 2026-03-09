@@ -203,12 +203,12 @@ def extract_from_page(html: str, variables: list, library: str = "parsel") -> di
     return _extract_parsel(html, variables)
 
 
-def test_extract(url: str, library: str, selector_type: str, selector: str, timeout: int = 30) -> tuple[list[str], str | None]:
+def test_extract(url: str, library: str, selector_type: str, selector: str, timeout: int = 30, proxy: str | None = None) -> tuple[list[str], str | None]:
     """
     Extrage valorile pentru un singur selector (test).
     Returnează (lista de texte extrase, eroare sau None).
     """
-    html, err = fetch_page(url, library=library, timeout=timeout)
+    html, err = fetch_page(url, library=library, timeout=timeout, proxy=proxy)
     if err:
         return [], err
     selector = (selector or "").strip()

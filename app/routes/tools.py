@@ -14,11 +14,14 @@ def test_extract_page():
         library = request.form.get("library") or request.json.get("library") or "parsel"
         selector_type = request.form.get("selector_type") or request.json.get("selector_type") or "xpath"
         selector = (request.form.get("selector") or request.json.get("selector") or "").strip()
+        proxy_enabled = request.form.get("proxy_enabled") == "1" or request.json.get("proxy_enabled") is True
+        proxy_url = (request.form.get("proxy_url") or request.json.get("proxy_url") or "").strip()
+        proxy = proxy_url if (proxy_enabled and proxy_url) else None
         if not url:
             if request.is_json:
                 return jsonify({"ok": False, "error": "URL obligatoriu.", "values": []}), 400
             return render_template("tools/test_extract.html", libraries=LIBRARIES, error="URL obligatoriu.")
-        values, err = test_extract(url, library=library, selector_type=selector_type, selector=selector)
+        values, err = test_extract(url, library=library, selector_type=selector_type, selector=selector, proxy=proxy)
         if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
             if err:
                 return jsonify({"ok": False, "error": err, "values": values})
@@ -30,6 +33,8 @@ def test_extract_page():
             library=library,
             selector_type=selector_type,
             selector=selector,
+            proxy_enabled=proxy_enabled,
+            proxy_url=proxy_url,
             values=values,
             error=err,
         )
